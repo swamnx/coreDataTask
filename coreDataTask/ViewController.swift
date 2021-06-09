@@ -6,14 +6,41 @@
 //
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var galleryView: UICollectionView!
+    
+    var photoService: PhotoService?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        galleryView.delegate = self
+        galleryView.dataSource = self
+        activityIndicator.hidesWhenStopped = true
+        photoService = PhotoService(self)
+        photoService?.loadInitialPhotos()
+    }
+    
+    @IBAction func reloadTouched(_ sender: UIButton) {
+        photoService?.fetchPhotoDetails()
+    }
+    
+}
+extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return photoService?.getPhotosCount() ?? 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCellID", for: indexPath) as? PhotoCellView
+        if let (update, photo) = photoService?.needUpdateWithNewPhoto(indexPath: indexPath), update {
+            cell?.photo.image = photo?.image
+        }
+        return cell ?? PhotoCellView()
     }
 
-
 }
-
