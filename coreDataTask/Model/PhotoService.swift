@@ -9,14 +9,15 @@ import Foundation
 import UIKit
 class PhotoService {
     
-    weak var viewController: ViewController?
+    weak private var delegate: PhotoServiceDelegate?
+    
     private var apiPhotos: [PhotoApi]?
     private var initialPhotos: [Photo]?
     private var asyncPhotoHandler: AsyncPhotoHandler?
     private var initial = true
     
-    init(_ controller: ViewController) {
-        viewController = controller
+    init(delegate: PhotoServiceDelegate) {
+        self.delegate = delegate
         apiPhotos = [PhotoApi]()
         asyncPhotoHandler = AsyncPhotoHandler()
         initialPhotos = [Photo]()
@@ -24,7 +25,7 @@ class PhotoService {
     
     func loadInitialPhotos() {
         initialPhotos = PhotoCoreService.shared.read()
-        self.viewController?.galleryView.reloadData()
+        delegate?.finishedLoadingInitialPhotos()
     }
     
     func getPhotosCount() -> Int {
@@ -66,17 +67,17 @@ class PhotoService {
                     self.apiPhotos?.append(PhotoApi(name: name, url: URL(string: CommonUtils.shared.getHttpsValue(httpValue: value))!))
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.viewController?.galleryView.reloadData()
+                    self.delegate?.finishedFetchingAllBasicPhotoDetails(failed: false)
                 }
               } catch {
                 DispatchQueue.main.async {
-                    self.viewController?.present(PhotoUtils.shared.getPhotoAlertController(), animated: true, completion: nil)
+                    self.delegate?.finishedFetchingAllBasicPhotoDetails(failed: true)
                 }
               }
             }
             if error != nil {
                 DispatchQueue.main.async {
-                    self.viewController?.present(PhotoUtils.shared.getPhotoAlertController(), animated: true, completion: nil)
+                    self.delegate?.finishedFetchingAllBasicPhotoDetails(failed: true)
                 }
             }
       }
@@ -91,9 +92,6 @@ class PhotoService {
             handler.amountOfCompletedTasks = 0
             handler.tasks.removeAll()
             apiPhotos?.removeAll()
-        }
-        DispatchQueue.main.async {
-            self.viewController?.activityIndicator.stopAnimating()
         }
     }
     
@@ -118,14 +116,9 @@ class PhotoService {
             }
             DispatchQueue.main.async {
                 if allTaskCompleted {
-                    self.viewController?.activityIndicator.stopAnimating()
+                    self.delegate?.finishedFetchingAllPhotoDetails()
                 }
-                self.viewController?.galleryView.reloadItems(at: [indexPath])
-            }
-        }
-        if asyncPhotoHandler?.tasks.count == 0 {
-            DispatchQueue.main.async {
-                self.viewController?.activityIndicator.startAnimating()
+                self.delegate?.finishedFetchingPhotoDetails(forIndexPath: indexPath)
             }
         }
         asyncPhotoHandler?.tasks[indexPath] = operation

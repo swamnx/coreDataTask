@@ -20,11 +20,12 @@ class ViewController: UIViewController {
         galleryView.delegate = self
         galleryView.dataSource = self
         activityIndicator.hidesWhenStopped = true
-        photoService = PhotoService(self)
+        photoService = PhotoService(delegate: self)
         photoService?.loadInitialPhotos()
     }
     
     @IBAction func reloadTouched(_ sender: UIButton) {
+        activityIndicator.startAnimating()
         photoService?.fetchPhotoDetails()
     }
     
@@ -43,4 +44,28 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
         return cell ?? PhotoCellView()
     }
 
+}
+
+extension ViewController: PhotoServiceDelegate {
+    
+    func finishedLoadingInitialPhotos() {
+        galleryView?.reloadData()
+    }
+    
+    func finishedFetchingAllBasicPhotoDetails(failed: Bool) {
+        if failed {
+            activityIndicator.stopAnimating()
+            present(PhotoUtils.shared.getPhotoAlertController(), animated: true, completion: nil)
+        }
+        galleryView?.reloadData()
+    }
+    
+    func finishedFetchingAllPhotoDetails() {
+        activityIndicator.stopAnimating()
+    }
+    
+    func finishedFetchingPhotoDetails(forIndexPath: IndexPath) {
+        galleryView?.reloadItems(at: [forIndexPath])
+    }
+    
 }

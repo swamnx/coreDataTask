@@ -36,7 +36,7 @@ struct PhotoCoreService {
             try managedContext.execute(deleteRequest)
             try managedContext.save()
         } catch let error as NSError {
-            print("Could not save. \(error), \(error.userInfo)")
+            assertionFailure("Could not save. \(error), \(error.userInfo)")
         }
     }
     
@@ -54,7 +54,7 @@ struct PhotoCoreService {
             }
             return photos
         } catch let error as NSError {
-          print("Could not fetch. \(error), \(error.userInfo)")
+            assertionFailure("Could not fetch. \(error), \(error.userInfo)")
         }
         return nil
     }
