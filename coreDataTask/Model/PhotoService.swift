@@ -67,17 +67,17 @@ class PhotoService {
                     self.apiPhotos?.append(PhotoApi(name: name, url: URL(string: CommonUtils.shared.getHttpsValue(httpValue: value))!))
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.delegate?.finishedFetchingAllBasicPhotoDetails(failed: false)
+                    self.delegate?.finishedFetchingAllBasicPhotoDetails()
                 }
               } catch {
                 DispatchQueue.main.async {
-                    self.delegate?.finishedFetchingAllBasicPhotoDetails(failed: true)
+                    self.delegate?.failedFetchingAllBasicPhotoDetails()
                 }
               }
             }
             if error != nil {
                 DispatchQueue.main.async {
-                    self.delegate?.finishedFetchingAllBasicPhotoDetails(failed: true)
+                    self.delegate?.failedFetchingAllBasicPhotoDetails()
                 }
             }
       }

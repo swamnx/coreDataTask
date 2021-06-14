@@ -9,7 +9,8 @@ import Foundation
 import UIKit
 protocol PhotoServiceDelegate: AnyObject {
     
-    func finishedFetchingAllBasicPhotoDetails(failed: Bool)
+    func failedFetchingAllBasicPhotoDetails()
+    func finishedFetchingAllBasicPhotoDetails()
     func finishedFetchingAllPhotoDetails()
     func finishedFetchingPhotoDetails(forIndexPath: IndexPath)
     func finishedLoadingInitialPhotos()

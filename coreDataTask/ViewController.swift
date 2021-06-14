@@ -48,15 +48,11 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
 
 extension ViewController: PhotoServiceDelegate {
     
-    func finishedLoadingInitialPhotos() {
-        galleryView?.reloadData()
+    func failedFetchingAllBasicPhotoDetails() {
+        activityIndicator.stopAnimating()
+        present(PhotoUtils.shared.getPhotoAlertController(), animated: true, completion: nil)
     }
-    
-    func finishedFetchingAllBasicPhotoDetails(failed: Bool) {
-        if failed {
-            activityIndicator.stopAnimating()
-            present(PhotoUtils.shared.getPhotoAlertController(), animated: true, completion: nil)
-        }
+    func finishedFetchingAllBasicPhotoDetails() {
         galleryView?.reloadData()
     }
     
@@ -66,6 +62,10 @@ extension ViewController: PhotoServiceDelegate {
     
     func finishedFetchingPhotoDetails(forIndexPath: IndexPath) {
         galleryView?.reloadItems(at: [forIndexPath])
+    }
+    
+    func finishedLoadingInitialPhotos() {
+        galleryView?.reloadData()
     }
     
 }
